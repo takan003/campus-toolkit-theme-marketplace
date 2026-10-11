@@ -124,6 +124,22 @@ html[data-theme="market:campus-dark"] {
 - 不得依賴圖片背景承載關鍵視覺（圖片不受 variables 影響）。
 - **styles.css 不得包含任何元件／版面規則**（如 `.card { ... }`）——只允許 `html[data-theme="market:{id}"]` 的變數覆寫區塊；元件樣式由 host app 統一管理。
 
+### 5.4 交換格式：`tokens.json`（選填）
+
+主題資料夾可另放 `tokens.json` 作為顏色的「單一真相來源」：
+
+```json
+{
+  "--bg": "#0f172a",
+  "--card": "#111827",
+  "--t1": "#e5e7eb"
+}
+```
+
+- 鍵須為 §5.1 白名單、必填鍵與值安全規則與 CSS 相同
+- 建置腳本（`build-release.ps1`）若偵測到 `tokens.json`，會自動重新生成 `styles.css`（以 tokens.json 為準，覆蓋手寫版本）
+- **所有自動化上架管道（管理端發佈、使用者投稿）一律只提交 `tokens.json`＋`theme.json`**，`styles.css` 由生成器產出，確保格式一致
+
 ## 6. 安全協議（安裝前強制檢查，全部通過才可下載）
 
 1. `index.json` 必須可正確解析為 JSON 且通過 schema。
@@ -190,10 +206,63 @@ GET 市集 index.json
 THEME_MARKET_INDEX_URL=https://raw.githubusercontent.com/takan003/campus-toolkit-theme-marketplace/main/index.json
 ```
 
-## 10. 契約版本紀錄
+## 11. 投稿與發佈契約（marketplaceVersion ≥ 1.3.0）
+
+市集有兩條上架管道，**都不需要市集端帳密或資料庫**——審核佇列就是 GitHub PR：
+
+| 管道 | 發起者 | 說明 |
+| --- | --- | --- |
+| 管理員發佈（M2.5） | host app 超級管理員 | 於主程式後台表單發佈，服務帳號直接開 PR（非 draft） |
+| 使用者投稿（§21） | 任何已登入使用者 | 於主程式投稿頁送出，服務帳號開 **draft PR**，須管理員審核後轉正式 |
+
+### 11.1 投稿 payload（host app → 市集 repo 的 PR 內容）
+
+```json
+{
+  "id": "ocean-breeze",
+  "name": "Ocean Breeze",
+  "description": "海洋藍清爽主題",
+  "author": "王小明",
+  "version": "1.0.0",
+  "tags": ["blue", "fresh"],
+  "colors": { "--bg": "#f0f9ff", "--card": "#ffffff", "--t1": "#0c4a6e" }
+}
+```
+
+規則：
+
+- `id`：kebab-case、不可與既有 `themes/{id}` 目錄重名（host app 開 PR 前須先檢查目錄不存在）
+- `colors`：§5.1 白名單＋必填鍵（`--bg`/`--card`/`--t1`）＋值安全驗證——**投稿只收 token JSON，不收自由 CSS**
+- `version`：初次上架固定 `1.0.0`
+
+### 11.2 PR 內容與重簽
+
+- 分支：`publish/{id}-...`（管理員）或 `submit/{id}-...`（投稿）
+- 檔案：`themes/{id}/theme.json`（`themeId` 重簽為 `market:{id}`、`contractVersion: 1`）＋ `themes/{id}/tokens.json`
+- `styles.css` 不由投稿者產生：merge 後由 CI（M2 workflow）執行建置腳本自動生成並回寫
+- commit 前綴：`publish:`（管理員）／`submit:`（投稿）
+- PR body 必須記錄 provenance：投稿者（uid／email）、原始 `custom:` id（若有）、發佈時間
+
+### 11.3 審核與發佈流程
+
+```text
+發起（管理員或投稿者）
+  → host app 伺服器驗證 payload → 服務帳號對市集 repo 開 PR
+  → CI 自動驗證（schema、契約、建置）
+  → 管理員 GitHub review → merge
+  → CI 於 main 上重建 index.json／releases 並回寫
+  → 市集更新完成（host app 讀索引即可看到）
+```
+
+- PR 即審核佇列：`open`＝審核中、`merged`＝已上架、`closed`＝駁回——不另設審核資料表
+- 服務帳號 token（host app 環境變數 `THEME_MARKET_GITHUB_TOKEN`）僅需目標倉庫 contents 與 pull requests 寫入權限；**絕不下发到前端**
+- 使用者身分由 host app 校園帳號認定，市集端零帳密資產
+
+## 12. 契約版本紀錄
 
 | 日期 | marketplaceVersion | 變更 |
 | --- | --- | --- |
 | 2026-10-11 | 1.0.0 | 初始契約：index/theme schema、themeId 來源協議、CSS token 契約、安全檢查清單 |
 | 2026-10-11 | 1.1.0 | CSS token 詞彙改以 campus-toolkit `ThemeColors` 33 鍵為準（§5.1）；styles.css 改為僅允許單一變數覆寫區塊（§5.3）；§6 增訂 token 白名單與值安全驗證；§7 補充 Vercel 環境的安裝紀錄替代方案 |
 | 2026-10-11 | 1.2.0 | 索引條目新增選填欄位 `previewUrl`（預覽圖絕對位址），供 host app 管理頁卡片顯示 |
+| 2026-10-11 | 1.3.0 | §5.4 `tokens.json` 交換格式（建置自動生成 styles.css）；§11 投稿與發佈契約（管理員發佈／使用者投稿雙管道、PR 審核佇列、provenance 規則）；新增 GitHub Actions CI 與 GitHub Pages 公開首頁 |

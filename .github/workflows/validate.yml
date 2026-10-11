@@ -1,0 +1,36 @@
+name: validate-marketplace
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate contract and rebuild artifacts
+        shell: powershell
+        run: |
+          .\scripts\build-release.ps1
+          .\scripts\build-release.ps1 -CheckOnly
+
+      - name: Commit regenerated index (push only, skip when no change)
+        if: github.event_name == 'push'
+        shell: powershell
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.json releases
+          if (git diff --cached --quiet) {
+            Write-Host "index.json 與 releases 無變更，略過 commit"
+          } else {
+            git commit -m "chore: regenerate index and releases [skip ci]"
+            git push
+          }

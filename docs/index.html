@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>校園主題市集</title>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --t1: #0f172a;
+    --t2: #334155;
+    --t3: #64748b;
+    --bd: #e2e8f0;
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, "Segoe UI", "Microsoft JhengHei", sans-serif;
+    background: var(--bg);
+    color: var(--t1);
+  }
+  header {
+    padding: 32px 20px 12px;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  h1 { margin: 0 0 6px; font-size: 26px; }
+  .sub { color: var(--t3); font-size: 14px; line-height: 1.6; }
+  .sub a { color: var(--primary); }
+  .toolbar {
+    max-width: 1000px;
+    margin: 16px auto 0;
+    padding: 0 20px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .toolbar input {
+    flex: 1;
+    min-width: 200px;
+    padding: 8px 12px;
+    border: 1px solid var(--bd);
+    border-radius: 8px;
+    background: var(--card);
+    color: var(--t1);
+    font-size: 14px;
+  }
+  .tag-filters { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag-btn {
+    border: 1px solid var(--bd);
+    background: var(--card);
+    color: var(--t2);
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .tag-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+  main {
+    max-width: 1000px;
+    margin: 20px auto 48px;
+    padding: 0 20px;
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--bd);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .card img { width: 100%; height: 150px; object-fit: cover; background: var(--bd); }
+  .card .body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .card h2 { margin: 0; font-size: 17px; display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+  .card h2 .ver { font-size: 12px; color: var(--t3); font-weight: normal; }
+  .card p { margin: 0; font-size: 13px; color: var(--t2); line-height: 1.5; flex: 1; }
+  .tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tags span {
+    font-size: 11px;
+    color: var(--t3);
+    border: 1px solid var(--bd);
+    border-radius: 6px;
+    padding: 2px 8px;
+  }
+  .actions { display: flex; gap: 8px; margin-top: 4px; }
+  .actions a {
+    font-size: 13px;
+    text-decoration: none;
+    color: #fff;
+    background: var(--primary);
+    padding: 6px 14px;
+    border-radius: 8px;
+  }
+  .actions a:hover { background: var(--primary-hover); }
+  .actions a.ghost { background: transparent; color: var(--primary); border: 1px solid var(--bd); }
+  .status {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 20px;
+    color: var(--t3);
+    font-size: 14px;
+  }
+  footer {
+    max-width: 1000px;
+    margin: 0 auto 32px;
+    padding: 0 20px;
+    color: var(--t3);
+    font-size: 12px;
+    line-height: 1.7;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>校園主題市集</h1>
+  <p class="sub">
+    為 <a href="https://github.com/takan003/campus-toolkit" target="_blank" rel="noreferrer">campus-toolkit</a> 提供的 CSS 主題目錄。
+    在主程式的管理後台「主題市集」一鍵安裝，即可於右上角主題選單啟用。本頁為純靜態頁面，資料來自
+    <a href="https://raw.githubusercontent.com/takan003/campus-toolkit-theme-marketplace/main/index.json" target="_blank" rel="noreferrer">index.json</a>。
+  </p>
+</header>
+
+<div class="toolbar">
+  <input id="search" type="search" placeholder="搜尋主題名稱、說明或標籤..." />
+  <div class="tag-filters" id="tagFilters"></div>
+</div>
+<p class="status" id="status">讀取市集資料中...</p>
+<main id="grid"></main>
+
+<footer>
+  資料契約見 <a href="./PROTOCOL.md">docs/PROTOCOL.md</a> ｜
+  倉庫 <a href="https://github.com/takan003/campus-toolkit-theme-marketplace" target="_blank" rel="noreferrer">GitHub</a> ｜
+  上架與審核流程見協議第 11 章（開發者投稿經管理員審核後發佈）
+</footer>
+
+<script>
+  var INDEX_URL = "https://raw.githubusercontent.com/takan003/campus-toolkit-theme-marketplace/main/index.json";
+  var entries = [];
+  var activeTag = "";
+
+  function el(tag, cls, text) {
+    var node = document.createElement(tag);
+    if (cls) node.className = cls;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+
+  function renderTags() {
+    var counts = {};
+    entries.forEach(function (entry) {
+      (entry.tags || []).forEach(function (tag) {
+        counts[tag] = (counts[tag] || 0) + 1;
+      });
+    });
+    var box = document.getElementById("tagFilters");
+    box.innerHTML = "";
+    ["", ...Object.keys(counts).sort()].forEach(function (tag) {
+      var btn = el("button", "tag-btn" + (activeTag === tag ? " active" : ""), tag === "" ? "全部" : "#" + tag + " (" + counts[tag] + ")");
+      btn.type = "button";
+      btn.onclick = function () { activeTag = tag; render(); };
+      box.appendChild(btn);
+    });
+  }
+
+  function render() {
+    renderTags();
+    var q = document.getElementById("search").value.trim().toLowerCase();
+    var grid = document.getElementById("grid");
+    grid.innerHTML = "";
+    var shown = entries.filter(function (entry) {
+      if (activeTag && (entry.tags || []).indexOf(activeTag) === -1) return false;
+      if (!q) return true;
+      var hay = (entry.name + " " + entry.description + " " + (entry.tags || []).join(" ")).toLowerCase();
+      return hay.indexOf(q) !== -1;
+    });
+    document.getElementById("status").textContent =
+      "共 " + entries.length + " 個主題" + (shown.length !== entries.length ? "，篩選後 " + shown.length + " 個" : "") +
+      "（marketplaceVersion " + (window.__mktVersion || "?") + "）";
+
+    shown.forEach(function (entry) {
+      var card = el("div", "card");
+      if (entry.previewUrl) {
+        var img = document.createElement("img");
+        img.src = entry.previewUrl;
+        img.alt = entry.name + " 預覽";
+        img.loading = "lazy";
+        img.onerror = function () { img.remove(); };
+        card.appendChild(img);
+      }
+      var body = el("div", "body");
+      var h2 = el("h2");
+      h2.appendChild(el("span", "", entry.name));
+      h2.appendChild(el("span", "ver", "v" + entry.version));
+      body.appendChild(h2);
+      body.appendChild(el("p", "", entry.description || "沒有說明"));
+      var tags = el("div", "tags");
+      (entry.tags || []).forEach(function (tag) { tags.appendChild(el("span", "", "#" + tag)); });
+      body.appendChild(tags);
+      var actions = el("div", "actions");
+      if (entry.downloadUrl) {
+        var dl = document.createElement("a");
+        dl.href = entry.downloadUrl;
+        dl.target = "_blank";
+        dl.rel = "noreferrer";
+        dl.textContent = "下載 zip";
+        actions.appendChild(dl);
+      }
+      if (entry.repoUrl) {
+        var repo = document.createElement("a");
+        repo.href = entry.repoUrl;
+        repo.target = "_blank";
+        repo.rel = "noreferrer";
+        repo.className = "ghost";
+        repo.textContent = "原始檔";
+        actions.appendChild(repo);
+      }
+      body.appendChild(actions);
+      card.appendChild(body);
+      grid.appendChild(card);
+    });
+  }
+
+  document.getElementById("search").addEventListener("input", render);
+
+  fetch(INDEX_URL, { cache: "no-store" })
+    .then(function (res) { return res.json(); })
+    .then(function (index) {
+      entries = (index.modules || []).filter(function (m) { return m.category === "theme"; });
+      window.__mktVersion = index.marketplaceVersion || "";
+      render();
+    })
+    .catch(function (err) {
+      document.getElementById("status").textContent = "市集資料讀取失敗：" + err.message;
+    });
+</script>
+</body>
+</html>

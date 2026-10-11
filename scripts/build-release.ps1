@@ -18,7 +18,7 @@
 param(
   [string]$BaseUrl = 'https://raw.githubusercontent.com/takan003/campus-toolkit-theme-marketplace/main/releases',
   [string]$PreviewBaseUrl = 'https://raw.githubusercontent.com/takan003/campus-toolkit-theme-marketplace/main/themes',
-  [string]$MarketplaceVersion = '1.2.0',
+  [string]$MarketplaceVersion = '1.3.0',
   [string]$RepoUrl = 'https://github.com/takan003/campus-toolkit-theme-marketplace',
   [switch]$CheckOnly,
   [switch]$ForcePreview
@@ -41,6 +41,20 @@ $requiredThemeFields = @(
 $semverPattern = '^\d+\.\d+\.\d+$'
 $idPattern = '^[a-z0-9]+(-[a-z0-9]+)*$'
 $checksumPattern = '^[a-f0-9]{64}$'
+
+# Token 白名單（契約 §5.1，順序即 styles.css 輸出順序；與 campus-toolkit ThemeColors 一致）
+$tokenOrder = @(
+  '--bg', '--bg2', '--t1', '--t2', '--t3', '--bd', '--bd2', '--card', '--sh',
+  '--primary', '--primary-hover', '--primary-text', '--primary-text-hover', '--primary-block',
+  '--danger', '--success', '--warning',
+  '--btn-secondary', '--btn-secondary-hover', '--btn-secondary-text', '--btn-secondary-text-hover',
+  '--btn-danger', '--btn-danger-hover', '--btn-danger-text', '--btn-danger-text-hover',
+  '--btn-disabled', '--btn-disabled-text',
+  '--link', '--link-hover',
+  '--radius', '--font-sans', '--font-mono', '--transition'
+)
+$requiredTokens = @('--bg', '--card', '--t1')
+$unsafeValuePattern = '[;{}]|url\(|expression\(|@import'
 
 function Fail([string]$message) {
   throw "[build-release] $message"
@@ -111,6 +125,32 @@ foreach ($dir in $themeDirs) {
 
   $cssPath = Join-Path $dir.FullName $theme.cssFile
   if (-not (Test-Path -LiteralPath $cssPath)) { Fail "themes/$($dir.Name)：找不到 cssFile（$($theme.cssFile)）" }
+
+  # tokens.json 存在時重新生成 styles.css（契約 §5.4：自動化上架只交 tokens，CSS 由生成器產出）
+  $tokensPath = Join-Path $dir.FullName 'tokens.json'
+  if (Test-Path -LiteralPath $tokensPath) {
+    $tokens = Read-JsonFile $tokensPath
+    $lines = foreach ($key in $tokenOrder) {
+      $prop = $tokens.PSObject.Properties[$key]
+      if ($prop -and $null -ne $prop.Value) {
+        $value = [string]$prop.Value
+        if ([string]::IsNullOrWhiteSpace($value)) { Fail "themes/$($dir.Name)/tokens.json：$key 的值不得為空" }
+        if ($value.Length -gt 160) { Fail "themes/$($dir.Name)/tokens.json：$key 的值過長" }
+        if ($value -match $unsafeValuePattern) { Fail "themes/$($dir.Name)/tokens.json：$key 的值含不允許的構造" }
+        "  ${key}: $value;"
+      }
+    }
+    foreach ($unknown in $tokens.PSObject.Properties.Name) {
+      if ($tokenOrder -notcontains $unknown) { Fail "themes/$($dir.Name)/tokens.json：非白名單 token「$unknown」" }
+    }
+    foreach ($req in $requiredTokens) {
+      if ($null -eq $tokens.PSObject.Properties[$req]) { Fail "themes/$($dir.Name)/tokens.json：缺少必填 token「$req」" }
+    }
+    $cssContent = "html[data-theme=`"market:$($theme.id)`"] {`n" + ($lines -join "`n") + "`n}`n"
+    $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+    [System.IO.File]::WriteAllText($cssPath, $cssContent, $utf8NoBom)
+    Write-Host "  [tokens] $($dir.Name)：由 tokens.json 重新生成 $($theme.cssFile)"
+  }
 
   $cssRaw = [System.IO.File]::ReadAllText($cssPath, [System.Text.Encoding]::UTF8)
   if ($cssRaw -notmatch [regex]::Escape("html[data-theme=`"market:$($theme.id)`"]")) {
