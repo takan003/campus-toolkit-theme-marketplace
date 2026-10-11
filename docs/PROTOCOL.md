@@ -202,7 +202,8 @@ GET 市集 index.json
 ## 9. host app 端建議環境變數
 
 ```env
-# 主題市集（建議新增，與模組市集分開）
+# 主題市集（選填）：campus-toolkit 已內建預設市集網址，fork 零設定即可使用；
+# 僅「要指向自己市集」的部署才需覆寫此變數
 THEME_MARKET_INDEX_URL=https://raw.githubusercontent.com/takan003/campus-toolkit-theme-marketplace/main/index.json
 ```
 
