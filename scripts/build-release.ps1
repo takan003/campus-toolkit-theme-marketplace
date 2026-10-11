@@ -17,7 +17,7 @@
 [CmdletBinding()]
 param(
   [string]$BaseUrl = 'https://raw.githubusercontent.com/takan003/campus-toolkit-theme-marketplace/main/releases',
-  [string]$MarketplaceVersion = '1.0.0',
+  [string]$MarketplaceVersion = '1.1.0',
   [string]$RepoUrl = 'https://github.com/takan003/campus-toolkit-theme-marketplace',
   [switch]$CheckOnly,
   [switch]$ForcePreview

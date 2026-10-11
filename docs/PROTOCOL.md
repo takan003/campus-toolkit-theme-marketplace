@@ -68,28 +68,34 @@ theme.zip
 
 ## 5. CSS Token 契約（contractVersion 1）
 
-主題包**只負責覆寫全域 CSS variables**，不得直接堆砌頁面樣式。host app 的所有元件必須以 `var(--*)` 取色。
+主題包**只負責覆寫全域 CSS variables**，不得包含任何元件樣式規則。host app 的所有元件必須以 `var(--*)` 取色。
 
-### 5.1 必須支援的 token
+### 5.1 Token 白名單（詞彙以 campus-toolkit `ThemeColors` 為準）
 
-| Token | 用途 |
+host app（campus-toolkit）的全域 token 共 33 鍵（見主程式 `src/types/theme.ts` 的 `ThemeColors`）。主題包**只能覆寫下列白名單內的鍵**，鍵名必須完全一致：
+
+| 分組 | Token |
 | --- | --- |
-| `--bg` | 頁面背景 |
-| `--surface` | 卡片／面板背景 |
-| `--surface-2` | 次層面板背景 |
-| `--text` | 主要文字 |
-| `--muted` | 次要文字 |
-| `--border` | 邊框 |
-| `--shadow` | 陰影顏色 |
-| `--primary` | 主要色 |
-| `--primary-strong` | 主要色（強調） |
-| `--success` | 成功狀態 |
-| `--warning` | 警告狀態 |
-| `--danger` | 危險／錯誤狀態 |
+| 版面 | `--bg`（頁面背景）、`--bg2`（次層背景）、`--card`（卡片背景）、`--sh`（陰影，完整 shadow 簡寫值） |
+| 文字 | `--t1`（主要）、`--t2`（次要）、`--t3`（輔助） |
+| 邊框 | `--bd`、`--bd2` |
+| 主要色 | `--primary`、`--primary-hover`、`--primary-text`、`--primary-text-hover`、`--primary-block` |
+| 狀態色 | `--danger`、`--success`、`--warning` |
+| 次要按鈕 | `--btn-secondary`、`--btn-secondary-hover`、`--btn-secondary-text`、`--btn-secondary-text-hover` |
+| 危險按鈕 | `--btn-danger`、`--btn-danger-hover`、`--btn-danger-text`、`--btn-danger-text-hover` |
+| 停用按鈕 | `--btn-disabled`、`--btn-disabled-text` |
+| 連結 | `--link`、`--link-hover` |
+| 其他 | `--radius`（如 `8px`）、`--font-sans`、`--font-mono`、`--transition`（如 `0.2s ease`） |
+
+規則：
+
+- 每個主題**至少必須覆寫** `--bg`、`--card`、`--t1`（身分與可讀性最低集合）；其餘鍵可省略，省略者由 host app 以預設主題補底
+- 值必須是安全的 CSS 宣告值：不得含 `;`、`{`、`}`、`url(`、`expression(`、`@import` 等構造（host app 安裝時會強制驗證）
+- host app 套用主題時以 `setProperty` 逐鍵注入，**不會載入主題包的 CSS 檔本身**——CSS 檔的角色是「交換格式」，讓建置工具與審核者可讀
 
 ### 5.2 覆寫方式
 
-主題 CSS 必須以 `html[data-theme="market:{id}"]` 作為選擇器掛載，host app 套用主題時會設定：
+主題 CSS 必須以 `html[data-theme="market:{id}"]` 作為選擇器掛載，且檔案中**只允許這一個區塊**（純變數覆寫，不含元件規則）。host app 套用主題時會設定：
 
 ```js
 document.documentElement.dataset.theme = "market:campus-dark";
@@ -100,9 +106,14 @@ document.documentElement.dataset.theme = "market:campus-dark";
 ```css
 html[data-theme="market:campus-dark"] {
   --bg: #0f172a;
-  --surface: #111827;
-  --text: #e5e7eb;
+  --bg2: #1f2937;
+  --card: #111827;
+  --t1: #e5e7eb;
+  --t2: #cbd5e1;
+  --t3: #94a3b8;
+  --bd: rgba(148, 163, 184, 0.25);
   --primary: #60a5fa;
+  --primary-hover: #3b82f6;
 }
 ```
 
@@ -110,7 +121,7 @@ html[data-theme="market:campus-dark"] {
 
 - 不得寫死品牌色於 host app 新元件（一律走 token）。
 - 不得依賴圖片背景承載關鍵視覺（圖片不受 variables 影響）。
-- 主題包內允許少量 theme-specific 補充規則，但不得覆蓋 host app 的結構性版面。
+- **styles.css 不得包含任何元件／版面規則**（如 `.card { ... }`）——只允許 `html[data-theme="market:{id}"]` 的變數覆寫區塊；元件樣式由 host app 統一管理。
 
 ## 6. 安全協議（安裝前強制檢查，全部通過才可下載）
 
@@ -120,10 +131,13 @@ html[data-theme="market:campus-dark"] {
 4. `checksumSha256` 必須為 64 碼小寫 hex，且與下載檔案實際 SHA-256 相符。
 5. host app 版本必須 ≥ `minHostVersion`（semver 比較），否則拒絕安裝。
 6. zip 檔案大小須低於上限（建議預設 5 MB）。
-7. 解壓時須拒絕路徑穿越（zip slip）：解壓目標不得超出 `themes/{id}/` 之外。
-8. 解壓後必須存在 `theme.json`，且通過 `theme.schema.json` 驗證。
+7. 解壓時須拒絕路徑穿越（zip slip）：解壓目標不得超出臨時目錄之外。
+8. 解壓後必須存在 `theme.json`，且通過 `theme.schema.json` 驗證；`themeId` 必須等於 `market:{id}`。
+9. `styles.css` 中解析出的 token 鍵必須屬於 §5.1 白名單；值不得含 `;`、`{`、`}`、`url(`、`expression(`、`@import` 等危險構造。
 
 任一項失敗，安裝流程必須中止並回報具體原因（版本不符／checksum 失敗／來源不可信等）。
+
+> **campus-toolkit 實作註記**：主程式部署於 Vercel，production 檔案系統唯讀，因此安裝不寫入伺服器磁碟——伺服器僅負責「下載、驗證、解析 token」，將驗證通過的主題內容回傳瀏覽器，由前端存入 localStorage，帳號層則以 `users.cssThemeId` / `users.installedThemes` 欄位保存（見主程式 `docs/CSS主題個性化規劃書.md`）。
 
 ## 7. 安裝流程與本機註冊
 
@@ -140,7 +154,12 @@ GET 市集 index.json
   → 列為可選主題
 ```
 
-安裝紀錄建議以 `theme.lock.json`（或 `themes/registry.json`）保存，每筆至少包含：
+安裝紀錄的保存方式由 host app 決定，二選一：
+
+1. **檔案系統方案**（有可寫磁碟的部署環境）：`theme.lock.json`（或 `themes/registry.json`）
+2. **資料儲存方案**（如 campus-toolkit 部署於 Vercel、production 檔案系統唯讀）：localStorage 保存主題內容＋帳號資料庫欄位保存 `themeId` 與已安裝清單
+
+每筆安裝紀錄至少包含：
 
 ```json
 {
@@ -175,3 +194,4 @@ THEME_MARKET_INDEX_URL=https://raw.githubusercontent.com/takan003/campus-toolkit
 | 日期 | marketplaceVersion | 變更 |
 | --- | --- | --- |
 | 2026-10-11 | 1.0.0 | 初始契約：index/theme schema、themeId 來源協議、CSS token 契約、安全檢查清單 |
+| 2026-10-11 | 1.1.0 | CSS token 詞彙改以 campus-toolkit `ThemeColors` 33 鍵為準（§5.1）；styles.css 改為僅允許單一變數覆寫區塊（§5.3）；§6 增訂 token 白名單與值安全驗證；§7 補充 Vercel 環境的安裝紀錄替代方案 |

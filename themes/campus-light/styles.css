@@ -1,34 +1,33 @@
 html[data-theme="market:campus-light"] {
   --bg: #f8fafc;
-  --surface: #ffffff;
-  --surface-2: #f1f5f9;
-  --text: #0f172a;
-  --muted: #475569;
+  --bg2: #f1f5f9;
+  --card: #ffffff;
+  --sh: 0 10px 30px rgba(15, 23, 42, 0.1);
+  --t1: #0f172a;
+  --t2: #334155;
+  --t3: #64748b;
+  --bd: #e2e8f0;
+  --bd2: #cbd5e1;
   --primary: #2563eb;
-  --primary-strong: #1d4ed8;
+  --primary-hover: #1d4ed8;
+  --primary-text: #ffffff;
+  --primary-text-hover: #ffffff;
+  --primary-block: rgba(37, 99, 235, 0.1);
+  --danger: #ef4444;
   --success: #16a34a;
   --warning: #f59e0b;
-  --danger: #ef4444;
-  --border: #e2e8f0;
-  --shadow: rgba(15, 23, 42, 0.12);
-}
-
-html[data-theme="market:campus-light"] body {
-  background: var(--bg);
-  color: var(--text);
-}
-
-html[data-theme="market:campus-light"] .card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  box-shadow: 0 10px 30px var(--shadow);
-}
-
-html[data-theme="market:campus-light"] .button-primary {
-  background: var(--primary);
-  color: #fff;
-}
-
-html[data-theme="market:campus-light"] .button-primary:hover {
-  background: var(--primary-strong);
+  --btn-secondary: #f1f5f9;
+  --btn-secondary-hover: #e2e8f0;
+  --btn-secondary-text: #0f172a;
+  --btn-secondary-text-hover: #0f172a;
+  --btn-danger: #dc2626;
+  --btn-danger-hover: #b91c1c;
+  --btn-danger-text: #ffffff;
+  --btn-danger-text-hover: #ffffff;
+  --btn-disabled: #f1f5f9;
+  --btn-disabled-text: #94a3b8;
+  --link: #2563eb;
+  --link-hover: #1d4ed8;
+  --radius: 8px;
+  --transition: 0.2s ease;
 }

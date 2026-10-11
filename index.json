@@ -1,6 +1,6 @@
 {
-    "generatedAt":  "2026-10-11T00:24:19+08:00",
-    "marketplaceVersion":  "1.0.0",
+    "generatedAt":  "2026-10-11T01:42:59+08:00",
+    "marketplaceVersion":  "1.1.0",
     "modules":  [
                     {
                         "id":  "campus-dark",
@@ -11,7 +11,7 @@
                         "minHostVersion":  "1.0.0",
                         "repoUrl":  "https://github.com/takan003/campus-toolkit-theme-marketplace/tree/main/themes/campus-dark",
                         "downloadUrl":  "https://raw.githubusercontent.com/takan003/campus-toolkit-theme-marketplace/main/releases/campus-dark.zip",
-                        "checksumSha256":  "c3d2ef8b6a0c301134a665fef97b5b65925a027c16fe58195c83b3befb4191d8",
+                        "checksumSha256":  "17270aba0bc4884c4eb26792c3ed1ad7283ced956ac4450348bd180006685465",
                         "category":  "theme",
                         "tags":  [
                                      "dark",
@@ -28,7 +28,7 @@
                         "minHostVersion":  "1.0.0",
                         "repoUrl":  "https://github.com/takan003/campus-toolkit-theme-marketplace/tree/main/themes/campus-light",
                         "downloadUrl":  "https://raw.githubusercontent.com/takan003/campus-toolkit-theme-marketplace/main/releases/campus-light.zip",
-                        "checksumSha256":  "b4312f588c99661272272005d1df247f7a38c1a699b148aaf7b1d8677e7b9ccf",
+                        "checksumSha256":  "97088752e779f14d7f052e26a216c01c9fcf28b5c1145aef37b36097994c517d",
                         "category":  "theme",
                         "tags":  [
                                      "light",
