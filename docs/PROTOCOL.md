@@ -50,6 +50,7 @@ host app 決定「最終套用哪個主題」時，必須依下列固定順序�
 - 條目最少欄位：`id`、`name`、`description`、`version`、`latestVersion`、`minHostVersion`、`repoUrl`、`downloadUrl`、`checksumSha256`、`category`、`tags`。
 - `category` 固定為 `"theme"`。
 - `checksumSha256` 為對應 zip 的 SHA-256，64 碼小寫 hex。
+- `previewUrl`（選填，marketplaceVersion ≥ 1.2.0）：預覽圖絕對位址，供 host app 卡片顯示。
 
 ### 4.2 主題包 manifest `theme.json`
 
@@ -195,3 +196,4 @@ THEME_MARKET_INDEX_URL=https://raw.githubusercontent.com/takan003/campus-toolkit
 | --- | --- | --- |
 | 2026-10-11 | 1.0.0 | 初始契約：index/theme schema、themeId 來源協議、CSS token 契約、安全檢查清單 |
 | 2026-10-11 | 1.1.0 | CSS token 詞彙改以 campus-toolkit `ThemeColors` 33 鍵為準（§5.1）；styles.css 改為僅允許單一變數覆寫區塊（§5.3）；§6 增訂 token 白名單與值安全驗證；§7 補充 Vercel 環境的安裝紀錄替代方案 |
+| 2026-10-11 | 1.2.0 | 索引條目新增選填欄位 `previewUrl`（預覽圖絕對位址），供 host app 管理頁卡片顯示 |

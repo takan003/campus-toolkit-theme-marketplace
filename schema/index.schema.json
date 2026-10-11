@@ -64,6 +64,11 @@
           "description": "支援的最小 host app 版本，低於此版本禁止安裝。"
         },
         "repoUrl": { "type": "string", "format": "uri" },
+        "previewUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "主題預覽圖的絕對位址（選填）。host app 管理頁可用於卡片預覽。"
+        },
         "downloadUrl": {
           "type": "string",
           "format": "uri",

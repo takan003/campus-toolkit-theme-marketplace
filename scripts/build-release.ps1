@@ -17,7 +17,8 @@
 [CmdletBinding()]
 param(
   [string]$BaseUrl = 'https://raw.githubusercontent.com/takan003/campus-toolkit-theme-marketplace/main/releases',
-  [string]$MarketplaceVersion = '1.1.0',
+  [string]$PreviewBaseUrl = 'https://raw.githubusercontent.com/takan003/campus-toolkit-theme-marketplace/main/themes',
+  [string]$MarketplaceVersion = '1.2.0',
   [string]$RepoUrl = 'https://github.com/takan003/campus-toolkit-theme-marketplace',
   [switch]$CheckOnly,
   [switch]$ForcePreview
@@ -177,6 +178,7 @@ foreach ($e in $entries) {
     latestVersion   = $theme.version
     minHostVersion  = $theme.minHostVersion
     repoUrl         = "$RepoUrl/tree/main/themes/$($theme.id)"
+    previewUrl      = "$PreviewBaseUrl/$($theme.id)/$($theme.preview)"
     downloadUrl     = "$BaseUrl/$($theme.id).zip"
     checksumSha256  = $checksum
     category        = 'theme'
