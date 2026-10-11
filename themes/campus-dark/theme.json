@@ -1,0 +1,14 @@
+{
+  "id": "campus-dark",
+  "name": "Campus Dark",
+  "version": "1.0.0",
+  "themeId": "market:campus-dark",
+  "minHostVersion": "1.0.0",
+  "author": "校園資訊中心",
+  "description": "適合長時間瀏覽的深色方案，降低夜間使用時的眩光。",
+  "preview": "preview.png",
+  "category": "theme",
+  "tags": ["dark", "campus", "default"],
+  "contractVersion": 1,
+  "cssFile": "styles.css"
+}

@@ -1,0 +1,64 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/takan003/campus-toolkit-theme-marketplace/schema/theme.schema.json",
+  "title": "campus-toolkit Theme Package Manifest",
+  "description": "主題包內部 manifest（theme.json）契約。主題包解壓後此檔須位於壓縮根目錄。",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "version",
+    "themeId",
+    "minHostVersion",
+    "author",
+    "description",
+    "preview",
+    "category",
+    "tags",
+    "contractVersion",
+    "cssFile"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "主題唯一識別（kebab-case），須與市集索引的 id 一致。"
+    },
+    "name": { "type": "string", "minLength": 1 },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "themeId": {
+      "type": "string",
+      "pattern": "^(builtin|market|custom):[a-z0-9-]+$",
+      "description": "主題來源識別。市集主題必須為 market:{id}。"
+    },
+    "minHostVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "author": { "type": "string", "minLength": 1 },
+    "description": { "type": "string" },
+    "preview": {
+      "type": "string",
+      "description": "預覽圖相對路徑（相對於主題包根目錄）。"
+    },
+    "category": { "const": "theme" },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "contractVersion": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "主題契約版本。host app 以此判定是否支援此主題包格式。"
+    },
+    "cssFile": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._-]+\\.css$",
+      "description": "實際樣式檔名（相對於主題包根目錄），例如 styles.css。"
+    }
+  }
+}

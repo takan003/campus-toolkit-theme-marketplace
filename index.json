@@ -1,0 +1,40 @@
+{
+    "generatedAt":  "2026-10-11T00:24:19+08:00",
+    "marketplaceVersion":  "1.0.0",
+    "modules":  [
+                    {
+                        "id":  "campus-dark",
+                        "name":  "Campus Dark",
+                        "description":  "適合長時間瀏覽的深色方案，降低夜間使用時的眩光。",
+                        "version":  "1.0.0",
+                        "latestVersion":  "1.0.0",
+                        "minHostVersion":  "1.0.0",
+                        "repoUrl":  "https://github.com/takan003/campus-toolkit-theme-marketplace/tree/main/themes/campus-dark",
+                        "downloadUrl":  "https://raw.githubusercontent.com/takan003/campus-toolkit-theme-marketplace/main/releases/campus-dark.zip",
+                        "checksumSha256":  "c3d2ef8b6a0c301134a665fef97b5b65925a027c16fe58195c83b3befb4191d8",
+                        "category":  "theme",
+                        "tags":  [
+                                     "dark",
+                                     "campus",
+                                     "default"
+                                 ]
+                    },
+                    {
+                        "id":  "campus-light",
+                        "name":  "Campus Light",
+                        "description":  "明亮清晰的預設配色，適合日間與一般辦公環境。",
+                        "version":  "1.0.0",
+                        "latestVersion":  "1.0.0",
+                        "minHostVersion":  "1.0.0",
+                        "repoUrl":  "https://github.com/takan003/campus-toolkit-theme-marketplace/tree/main/themes/campus-light",
+                        "downloadUrl":  "https://raw.githubusercontent.com/takan003/campus-toolkit-theme-marketplace/main/releases/campus-light.zip",
+                        "checksumSha256":  "b4312f588c99661272272005d1df247f7a38c1a699b148aaf7b1d8677e7b9ccf",
+                        "category":  "theme",
+                        "tags":  [
+                                     "light",
+                                     "campus",
+                                     "default"
+                                 ]
+                    }
+                ]
+}

@@ -1,0 +1,14 @@
+{
+  "id": "campus-light",
+  "name": "Campus Light",
+  "version": "1.0.0",
+  "themeId": "market:campus-light",
+  "minHostVersion": "1.0.0",
+  "author": "校園資訊中心",
+  "description": "明亮清晰的預設配色，適合日間與一般辦公環境。",
+  "preview": "preview.png",
+  "category": "theme",
+  "tags": ["light", "campus", "default"],
+  "contractVersion": 1,
+  "cssFile": "styles.css"
+}
